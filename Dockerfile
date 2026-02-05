@@ -2,7 +2,7 @@
 FROM --platform=$BUILDPLATFORM alpine:latest AS downloader
 
 # 安装必要工具
-RUN apk add --no-cache curl jq
+RUN apk add --no-cache curl jq unzip
 
 # 定义目标架构变量 (由 Docker 自动填充)
 ARG TARGETARCH
@@ -19,19 +19,19 @@ RUN case "${TARGETARCH}" in \
     curl -L -o cloudflared "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}" && \
     chmod +x cloudflared
 
-# 下载最新版 sing-box
-RUN case "${TARGETARCH}" in \
-        "amd64") S_ARCH="amd64" ;; \
-        "arm64") S_ARCH="arm64" ;; \
-        "arm")   S_ARCH="armv7" ;; \
-        *) echo "Unsupported architecture: ${TARGETARCH}"; exit 1 ;; \
+# 下载最新版 xray
+RUN case "${TARGETPLATFORM}" in \
+        "linux/amd64")  ARCH="64" ;; \
+        "linux/arm64")  ARCH="arm64-v8a" ;; \
+        "linux/arm/v7") ARCH="arm32-v7a" ;; \
+        "linux/s390x")  ARCH="s390x" ;; \
+        *) ARCH="64" ;; \
     esac && \
-    VERSION=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest | jq -r .tag_name | sed 's/v//') && \
-    curl -L "https://github.com/SagerNet/sing-box/releases/download/v${VERSION}/sing-box-${VERSION}-linux-${S_ARCH}.tar.gz" -o sing-box.tar.gz && \
-    tar -xzf sing-box.tar.gz --strip-components=1 && \
-    mv sing-box /downloads/sing-box && \
-    chmod +x /downloads/sing-box
-
+    VERSION=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name | sed 's/v//') && \
+    curl -L "https://github.com/XTLS/Xray-core/releases/download/${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
+    mkdir /tmp/xray && \
+    unzip xray.zip -d /tmp/xray
+    
 # 第二阶段：最终运行镜像
 FROM --platform=$BUILDPLATFORM alpine:latest
 
@@ -40,13 +40,13 @@ RUN apk add --no-cache ca-certificates tzdata
 
 # 从下载阶段拷贝程序
 COPY --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
-COPY --from=downloader /downloads/sing-box /usr/local/bin/sing-box
+COPY --from=downloader /downloads/tmp/xray/xray /usr/local/bin/xray
+COPY --from=downloader /downloads/tmp/xray/*.dat /usr/local/share/xray/
+RUN chmod +x /usr/local/bin/xray
 
-# 验证安装
-RUN cloudflared --version && sing-box version
 
 # 设置工作目录
-WORKDIR /etc/sing-box
-
-# 默认启动指令 (你可以根据需求修改)
-CMD ["sing-box", "run"]
+WORKDIR /etc/xray-argo
+ENV TZ=Asia/Shanghai
+COPY entrypoint.sh /etc/xray-argo
+ENTRYPOINT [ "./entrypoint.sh" ]
