@@ -36,7 +36,7 @@ RUN case "${TARGETPLATFORM}" in \
 FROM --platform=$BUILDPLATFORM alpine:latest
 
 # 安装基础运行时依赖 (如 ca-certificates 用于 SSL)
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata bash
 
 # 从下载阶段拷贝程序
 COPY --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
