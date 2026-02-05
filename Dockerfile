@@ -29,8 +29,8 @@ RUN case "${TARGETPLATFORM}" in \
     esac && \
     VERSION=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name | sed 's/v//') && \
     curl -L "https://github.com/XTLS/Xray-core/releases/download/v${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
-    mkdir /tmp/xray && \
-    unzip xray.zip -d /tmp/xray
+    mkdir -p tmp/xray && \
+    unzip xray.zip -d tmp/xray
     
 # 第二阶段：最终运行镜像
 FROM --platform=$BUILDPLATFORM alpine:latest
