@@ -35,7 +35,7 @@ cat > config.json << EOF
     },
     "inbounds":[
         {
-            "port":${PORT},
+            "port":${ARGO_PORT},
             "protocol":"vless",
             "settings":{
                 "clients":[
@@ -52,18 +52,6 @@ cat > config.json << EOF
                     {
                         "path":"/${WSPATH}-vless",
                         "dest":3002
-                    },
-                    {
-                        "path":"/${WSPATH}-vmess",
-                        "dest":3003
-                    },
-                    {
-                        "path":"/${WSPATH}-trojan",
-                        "dest":3004
-                    },
-                    {
-                        "path":"/${WSPATH}-shadowsocks",
-                        "dest":3005
                     }
                 ]
             },
@@ -119,90 +107,6 @@ cat > config.json << EOF
                 "metadataOnly":false
             }
         },
-        {
-            "port":3003,
-            "listen":"127.0.0.1",
-            "protocol":"vmess",
-            "settings":{
-                "clients":[
-                    {
-                        "id":"${UUID}",
-                        "alterId":0
-                    }
-                ]
-            },
-            "streamSettings":{
-                "network":"ws",
-                "wsSettings":{
-                    "path":"/${WSPATH}-vmess"
-                }
-            },
-            "sniffing":{
-                "enabled":true,
-                "destOverride":[
-                    "http",
-                    "tls",
-                    "quic"
-                ],
-                "metadataOnly":false
-            }
-        },
-        {
-            "port":3004,
-            "listen":"127.0.0.1",
-            "protocol":"trojan",
-            "settings":{
-                "clients":[
-                    {
-                        "password":"${UUID}"
-                    }
-                ]
-            },
-            "streamSettings":{
-                "network":"ws",
-                "security":"none",
-                "wsSettings":{
-                    "path":"/${WSPATH}-trojan"
-                }
-            },
-            "sniffing":{
-                "enabled":true,
-                "destOverride":[
-                    "http",
-                    "tls",
-                    "quic"
-                ],
-                "metadataOnly":false
-            }
-        },
-        {
-            "port":3005,
-            "listen":"127.0.0.1",
-            "protocol":"shadowsocks",
-            "settings":{
-                "clients":[
-                    {
-                        "method":"chacha20-ietf-poly1305",
-                        "password":"${UUID}"
-                    }
-                ],
-                "decryption":"none"
-            },
-            "streamSettings":{
-                "network":"ws",
-                "wsSettings":{
-                    "path":"/${WSPATH}-shadowsocks"
-                }
-            },
-            "sniffing":{
-                "enabled":true,
-                "destOverride":[
-                    "http",
-                    "tls",
-                    "quic"
-                ],
-                "metadataOnly":false
-            }
         }
     ],
     "dns":{
