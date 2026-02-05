@@ -28,7 +28,7 @@ RUN case "${TARGETPLATFORM}" in \
         *) ARCH="64" ;; \
     esac && \
     VERSION=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name | sed 's/v//') && \
-    curl -L "https://github.com/XTLS/Xray-core/releases/download/${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
+    curl -L "https://github.com/XTLS/Xray-core/releases/download/v${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
     mkdir /tmp/xray && \
     unzip xray.zip -d /tmp/xray
     
