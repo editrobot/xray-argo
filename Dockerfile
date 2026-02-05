@@ -49,4 +49,5 @@ RUN chmod +x /usr/local/bin/xray
 WORKDIR /etc/xray-argo
 ENV TZ=Asia/Shanghai
 COPY entrypoint.sh /etc/xray-argo
+RUN chmod +x /etc/xray-argo/entrypoint.sh
 ENTRYPOINT [ "./entrypoint.sh" ]
