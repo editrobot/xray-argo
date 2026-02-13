@@ -37,9 +37,8 @@ RUN openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr(
     
 # 第二阶段：最终运行镜像
 FROM --platform=$BUILDPLATFORM alpine:latest
-
 # 安装基础运行时依赖 (如 ca-certificates 用于 SSL)
-RUN apk add --no-cache ca-certificates tzdata bash
+RUN set -ex && apk add --no-cache --upgrade bash tzdata ca-certificates nftables
 
 # 从下载阶段拷贝程序
 COPY --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
@@ -49,8 +48,6 @@ COPY --from=downloader /downloads/uuid.txt /usr/local/share/xray/
 RUN chmod +x /usr/local/bin/xray && chmod +x /usr/local/bin/cloudflared
 
 # 设置工作目录
-WORKDIR /App
-ENV TZ=Asia/Shanghai
-COPY . .
-RUN chmod +x ./entrypoint.sh
+WORKDIR /app
+COPY entrypoint.sh /app/
 ENTRYPOINT [ "./entrypoint.sh" ]
