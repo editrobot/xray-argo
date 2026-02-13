@@ -13,6 +13,8 @@ export DATA_PATH="${PWD}/singbox_data"
 mkdir -p "$FILE_PATH" "$DATA_PATH"
 IP=$(curl -s --max-time 2 ipv4.ip.sb || curl -s --max-time 1 api.ipify.org || echo "IP_ERROR")
 ISP=$(curl -s --max-time 2 https://speed.cloudflare.com/meta | awk -F'"' '{print $26"-"$18}' || echo "0.0")
+echo "$IP.....$ISP"
+
 
 # ================== UUID 固定保存（核心逻辑）==================
 UUID_FILE="${FILE_PATH}/uuid.txt"
