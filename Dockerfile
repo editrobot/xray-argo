@@ -33,7 +33,7 @@ RUN case "${TARGETPLATFORM}" in \
     unzip xray.zip -d tmp/xray
 
 # 生成UUID
-RUN openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}' > /app/uuid.txt
+RUN openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}' > uuid.txt
     
 # 第二阶段：最终运行镜像
 FROM --platform=$BUILDPLATFORM alpine:latest
