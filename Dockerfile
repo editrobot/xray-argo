@@ -2,14 +2,14 @@
 FROM --platform=$BUILDPLATFORM alpine:latest AS downloader
 
 # 安装必要工具
-RUN apk add --no-cache curl jq unzip
+RUN apk add --no-cache curl jq unzip openssl
 
 # 定义目标架构变量 (由 Docker 自动填充)
 ARG TARGETARCH
 
 WORKDIR /downloads
 
-# 下载最新版 cloudflared
+# 下载最新版cloudflared
 RUN case "${TARGETARCH}" in \
         "amd64") ARCH="amd64" ;; \
         "arm64") ARCH="arm64" ;; \
@@ -19,7 +19,7 @@ RUN case "${TARGETARCH}" in \
     curl -L -o cloudflared "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-${ARCH}" && \
     chmod +x cloudflared
 
-# 下载最新版 xray
+# 下载最新版xray
 RUN case "${TARGETPLATFORM}" in \
         "linux/amd64")  ARCH="64" ;; \
         "linux/arm64")  ARCH="arm64-v8a" ;; \
@@ -31,6 +31,9 @@ RUN case "${TARGETPLATFORM}" in \
     curl -L "https://github.com/XTLS/Xray-core/releases/download/v${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
     mkdir -p tmp/xray && \
     unzip xray.zip -d tmp/xray
+
+# 生成UUID
+RUN openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}' > /app/uuid.txt
     
 # 第二阶段：最终运行镜像
 FROM --platform=$BUILDPLATFORM alpine:latest
@@ -42,12 +45,11 @@ RUN apk add --no-cache ca-certificates tzdata bash
 COPY --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
 COPY --from=downloader /downloads/tmp/xray/xray /usr/local/bin/xray
 COPY --from=downloader /downloads/tmp/xray/*.dat /usr/local/share/xray/
-RUN chmod +x /usr/local/bin/xray
-
+COPY --from=downloader /downloads/uuid.txt /usr/local/share/xray/
+RUN chmod +x /usr/local/bin/xray && chmod +x /usr/local/bin/cloudflared
 
 # 设置工作目录
-WORKDIR /etc/xray-argo
+WORKDIR /App
 ENV TZ=Asia/Shanghai
-COPY entrypoint.sh /etc/xray-argo
-RUN chmod +x /etc/xray-argo/entrypoint.sh
-ENTRYPOINT [ "/etc/xray-argo/entrypoint.sh" ]
+COPY . .
+ENTRYPOINT [ "./entrypoint.sh" ]
