@@ -28,26 +28,25 @@ RUN case "${TARGETPLATFORM}" in \
         *) ARCH="64" ;; \
     esac && \
     VERSION=$(curl -s https://api.github.com/repos/XTLS/Xray-core/releases/latest | jq -r .tag_name | sed 's/v//') && \
-    curl -L "https://github.com/XTLS/Xray-core/releases/download/v${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
+    curl -Ls "https://github.com/XTLS/Xray-core/releases/download/v${VERSION}/Xray-linux-${ARCH}.zip" -o xray.zip && \
     mkdir -p tmp/xray && \
-    unzip xray.zip -d tmp/xray
+    unzip -q xray.zip -d tmp/xray
 
 # 生成UUID
 RUN openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr($0,13,4)"-"substr($0,17,4)"-"substr($0,21,12)}' > uuid.txt
     
 # 第二阶段：最终运行镜像
-FROM --platform=$BUILDPLATFORM alpine:latest
+FROM alpine:latest
 # 安装基础运行时依赖 (如 ca-certificates 用于 SSL)
 RUN set -ex && apk add --no-cache --upgrade bash tzdata ca-certificates nftables
 
 # 从下载阶段拷贝程序
-COPY --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
-COPY --from=downloader /downloads/tmp/xray/xray /usr/local/bin/xray
+COPY --chmod=755 --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
+COPY --chmod=755 --from=downloader /downloads/tmp/xray/xray /usr/local/bin/xray
 COPY --from=downloader /downloads/tmp/xray/*.dat /usr/local/share/xray/
-COPY --from=downloader /downloads/uuid.txt /usr/local/share/xray/
-RUN chmod +x /usr/local/bin/xray && chmod +x /usr/local/bin/cloudflared
+COPY --from=downloader /downloads/uuid.txt /usr/local/share/xray/uuid
 
 # 设置工作目录
 WORKDIR /app
-COPY entrypoint.sh /app/
+COPY --chmod=755 entrypoint.sh /app/
 ENTRYPOINT [ "./entrypoint.sh" ]
