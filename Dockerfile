@@ -52,4 +52,5 @@ RUN chmod +x /usr/local/bin/xray && chmod +x /usr/local/bin/cloudflared
 WORKDIR /App
 ENV TZ=Asia/Shanghai
 COPY . .
+RUN chmod +x ./entrypoint.sh
 ENTRYPOINT [ "./entrypoint.sh" ]
