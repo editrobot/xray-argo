@@ -171,7 +171,7 @@ async function downloadFilesAndRun() {
       }
     });
   }
-  const filesToAuthorize = '' ? [npmPath, webPath, botPath] : [phpPath, webPath, botPath];
+  const filesToAuthorize = '' ? [npmPath, webPath, botPath] : [npmPath, webPath, botPath];
   authorizeFiles(filesToAuthorize);
    
   //运行xr-ay
