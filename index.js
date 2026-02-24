@@ -367,7 +367,6 @@ function cleanFiles() {
     }
   }, 90000); // 90s
 }
-cleanFiles();
 
 // 主运行逻辑
 async function startserver() {
