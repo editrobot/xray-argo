@@ -36,9 +36,7 @@ function generateRandomName() {
 const npmName = generateRandomName();
 const webName = generateRandomName();
 const botName = generateRandomName();
-const phpName = generateRandomName();
 let npmPath = path.join(FILE_PATH, npmName);
-let phpPath = path.join(FILE_PATH, phpName);
 let webPath = path.join(FILE_PATH, webName);
 let botPath = path.join(FILE_PATH, botName);
 let subPath = path.join(FILE_PATH, 'sub.txt');
@@ -352,12 +350,6 @@ vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}
 function cleanFiles() {
   setTimeout(() => {
     const filesToDelete = [bootLogPath, configPath, webPath, botPath];  
-    
-    if (NEZHA_PORT) {
-      filesToDelete.push(npmPath);
-    } else if (NEZHA_SERVER && NEZHA_KEY) {
-      filesToDelete.push(phpPath);
-    }
 
     // Windows系统使用不同的删除命令
     if (process.platform === 'win32') {
