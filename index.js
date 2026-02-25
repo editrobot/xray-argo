@@ -55,37 +55,6 @@ let listPath = path.join(FILE_PATH, 'list.txt');
 let bootLogPath = path.join(FILE_PATH, 'boot.log');
 let configPath = path.join(FILE_PATH, 'config.json');
 
-// 如果订阅器上存在历史运行节点则先删除
-function deleteNodes() {
-  try {
-    if (!UPLOAD_URL) return;
-    if (!fs.existsSync(subPath)) return;
-
-    let fileContent;
-    try {
-      fileContent = fs.readFileSync(subPath, 'utf-8');
-    } catch {
-      return null;
-    }
-
-    const decoded = Buffer.from(fileContent, 'base64').toString('utf-8');
-    const nodes = decoded.split('\n').filter(line =>
-      /(vless|vmess|trojan|hysteria2|tuic):\/\//.test(line)
-    );
-
-    if (nodes.length === 0) return;
-
-    axios.post(`${UPLOAD_URL}/api/delete-nodes`,
-      JSON.stringify({ nodes }),
-      { headers: { 'Content-Type': 'application/json' } }
-    ).catch((error) => {
-      return null;
-    });
-    return null;
-  } catch (err) {
-    return null;
-  }
-}
 
 // 清理历史文件
 function cleanupOldFiles() {
@@ -468,62 +437,6 @@ vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}
   }
 }
 
-// 自动上传节点或订阅
-async function uploadNodes() {
-  if (UPLOAD_URL && PROJECT_URL) {
-    const subscriptionUrl = `${PROJECT_URL}/${SUB_PATH}`;
-    const jsonData = {
-      subscription: [subscriptionUrl]
-    };
-    try {
-      const response = await axios.post(`${UPLOAD_URL}/api/add-subscriptions`, jsonData, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response && response.status === 200) {
-        console.log('Subscription uploaded successfully');
-        return response;
-      } else {
-        return null;
-        //  console.log('Unknown response status');
-      }
-    } catch (error) {
-      if (error.response) {
-        if (error.response.status === 400) {
-          //  console.error('Subscription already exists');
-        }
-      }
-    }
-  } else if (UPLOAD_URL) {
-    if (!fs.existsSync(listPath)) return;
-    const content = fs.readFileSync(listPath, 'utf-8');
-    const nodes = content.split('\n').filter(line => /(vless|vmess|trojan|hysteria2|tuic):\/\//.test(line));
-
-    if (nodes.length === 0) return;
-
-    const jsonData = JSON.stringify({ nodes });
-
-    try {
-      const response = await axios.post(`${UPLOAD_URL}/api/add-nodes`, jsonData, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      if (response && response.status === 200) {
-        console.log('Nodes uploaded successfully');
-        return response;
-      } else {
-        return null;
-      }
-    } catch (error) {
-      return null;
-    }
-  } else {
-    // console.log('Skipping upload nodes');
-    return;
-  }
-}
-
 // 90s后删除相关文件
 function cleanFiles() {
   setTimeout(() => {
@@ -552,30 +465,6 @@ function cleanFiles() {
   }, 90000); // 90s
 }
 cleanFiles();
-
-// 自动访问项目URL
-async function AddVisitTask() {
-  if (!AUTO_ACCESS || !PROJECT_URL) {
-    console.log("Skipping adding automatic access task");
-    return;
-  }
-
-  try {
-    const response = await axios.post('https://oooo.serv00.net/add-url', {
-      url: PROJECT_URL
-    }, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
-    // console.log(`${JSON.stringify(response.data)}`);
-    console.log(`automatic access task added successfully`);
-    return response;
-  } catch (error) {
-    console.error(`Add automatic access task faild: ${error.message}`);
-    return null;
-  }
-}
 
 // 主运行逻辑
 async function startserver() {
