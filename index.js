@@ -112,9 +112,8 @@ async function generateConfig() {
   const config = {
     log: { access: '/dev/null', error: '/dev/null', loglevel: 'none' },
     inbounds: [
-      { port: ARGO_PORT, protocol: 'vless', settings: { clients: [{ id: UUID, flow: 'xtls-rprx-vision' }], decryption: 'none', fallbacks: [{ dest: 3001 }, { path: "/vless-argo", dest: 3002 }] }, streamSettings: { network: 'tcp' } },
-      { port: 3001, listen: "127.0.0.1", protocol: "vless", settings: { clients: [{ id: UUID }], decryption: "none" }, streamSettings: { network: "tcp", security: "none" } },
-      { port: 3002, listen: "127.0.0.1", protocol: "vless", settings: { clients: [{ id: UUID, level: 0 }], decryption: "none" }, streamSettings: { network: "ws", security: "none", wsSettings: { path: "/vless-argo" } }, sniffing: { enabled: true, destOverride: ["http", "tls", "quic"], metadataOnly: false } }
+      { port: ARGO_PORT, protocol: 'vless', settings: { clients: [{ id: UUID, flow: 'xtls-rprx-vision' }], decryption: 'none', fallbacks: [{ path: "/", dest: 3001 }] }, streamSettings: { network: 'tcp' } },
+      { port: 3001, listen: "127.0.0.1", protocol: "vless", settings: { clients: [{ id: UUID, level: 0 }], decryption: "none" }, streamSettings: { network: "ws", security: "none", wsSettings: { path: "/" } }, sniffing: { enabled: true, destOverride: ["http", "tls", "quic"], metadataOnly: false } }
     ],
     dns: { servers: ["https+local://8.8.8.8/dns-query"] },
     outbounds: [{ protocol: "freedom", tag: "direct" }, { protocol: "blackhole", tag: "block" }]
@@ -458,7 +457,7 @@ async function extractDomains() {
     return new Promise((resolve) => {
       setTimeout(() => {
         const subTxt = `
-vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2Fvless-argo%3Fed%3D2560#${nodeName}`;
+vless://${UUID}@${CFIP}:${CFPORT}?encryption=none&security=tls&sni=${argoDomain}&fp=firefox&type=ws&host=${argoDomain}&path=%2F#${nodeName}`;
         // 打印 sub.txt 内容到控制台
         console.log(Buffer.from(subTxt).toString('base64'));
         fs.writeFileSync(subPath, Buffer.from(subTxt).toString('base64'));
@@ -582,12 +581,10 @@ async function AddVisitTask() {
 async function startserver() {
   try {
     argoType();
-    deleteNodes();
     cleanupOldFiles();
     await generateConfig();
     await downloadFilesAndRun();
     await extractDomains();
-    await AddVisitTask();
   } catch (error) {
     console.error('Error in startserver:', error);
   }
@@ -595,16 +592,5 @@ async function startserver() {
 startserver().catch(error => {
   console.error('Unhandled error in startserver:', error);
 });
-
-// 根路由
-// app.get("/", async function (req, res) {
-//   try {
-//     const filePath = path.join(__dirname, 'index.html');
-//     const data = await fs.promises.readFile(filePath, 'utf8');
-//     res.send(data);
-//   } catch (err) {
-//     res.send("Hello world!<br><br>You can access /{SUB_PATH}(Default: /sub) to get your nodes!");
-//   }
-// });
 
 app.listen(PORT, () => console.log(`http server is running on port:${PORT}!`));
