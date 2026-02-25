@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![Node.js Version](https://img.shields.io/badge/Node-16%2B-green.svg?style=flat-square)](https://nodejs.org/)
 [![Xray-core](https://img.shields.io/badge/Core-Xray-orange.svg?style=flat-square)](https://github.com/XTLS/Xray-core)
-[![Cloudflare](https://img.shields.io/badge/Network-Cloudflare_Argo-f38020.svg?style=flat-square)](https://www.cloudflare.com/products/argo-smart-routing/)
+[![Cloudflare Tunnel](https://img.shields.io/badge/Network-Cloudflare_Tunnel-f38020?style=flat-square&logo=cloudflare)](https://www.cloudflare.com/products/tunnel/)
 
 **node-argo** is a lightweight, automated proxy solution driven by Node.js. It seamlessly orchestrates **Xray-core** and **Cloudflare Argo Tunnel** to provide a secure, high-speed network bridge that bypasses firewalls without the need for a public IP or open inbound ports.
 
