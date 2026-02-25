@@ -597,14 +597,14 @@ startserver().catch(error => {
 });
 
 // 根路由
-app.get("/", async function (req, res) {
-  try {
-    const filePath = path.join(__dirname, 'index.html');
-    const data = await fs.promises.readFile(filePath, 'utf8');
-    res.send(data);
-  } catch (err) {
-    res.send("Hello world!<br><br>You can access /{SUB_PATH}(Default: /sub) to get your nodes!");
-  }
-});
+// app.get("/", async function (req, res) {
+//   try {
+//     const filePath = path.join(__dirname, 'index.html');
+//     const data = await fs.promises.readFile(filePath, 'utf8');
+//     res.send(data);
+//   } catch (err) {
+//     res.send("Hello world!<br><br>You can access /{SUB_PATH}(Default: /sub) to get your nodes!");
+//   }
+// });
 
-app.listen(PORT, () => console.log(`http server is running on port:${PORT}!`));
+// app.listen(PORT, () => console.log(`http server is running on port:${PORT}!`));
