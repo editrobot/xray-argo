@@ -38,7 +38,7 @@ RUN openssl rand -hex 16 | awk '{print substr($0,1,8)"-"substr($0,9,4)"-"substr(
 # 第二阶段：最终运行镜像
 FROM alpine:latest
 # 安装基础运行时依赖 (如 ca-certificates 用于 SSL)
-RUN set -ex && apk add --no-cache --upgrade bash tzdata ca-certificates nftables
+RUN set -ex && apk add --no-cache --upgrade bash tzdata ca-certificates nftables curl
 
 # 从下载阶段拷贝程序
 COPY --chmod=755 --from=downloader /downloads/cloudflared /usr/local/bin/cloudflared
