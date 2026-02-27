@@ -49,5 +49,4 @@ COPY --from=downloader /downloads/uuid.txt /usr/local/share/xray/uuid
 # 设置工作目录
 WORKDIR /app
 COPY --chmod=755 entrypoint.sh /app/
-CMD ["sleep", "infinity"]
 ENTRYPOINT [ "./entrypoint.sh" ]
